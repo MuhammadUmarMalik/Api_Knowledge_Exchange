@@ -41,10 +41,10 @@ Server.middleware.register([
 |
 */
 Server.middleware.registerNamed({
-  auth: () => import('App/Middleware/Auth'),
+  auth: () => import('App/Middleware/AuthMiddleware'),
 adminAuth: () => import('App/Middleware/AuthMiddleware'),
-  sellerAuth: () => import('App/Middleware/Seller'),
-  customerAuth: () => import('App/Middleware/Customer'),
-  tutorAuth: () => import('App/Middleware/Tutor'),
+  seller: () => import('App/Middleware/Seller'),
+  customer: () => import('App/Middleware/Customer'),
+  tutor: () => import('App/Middleware/Tutor'),
  
 })

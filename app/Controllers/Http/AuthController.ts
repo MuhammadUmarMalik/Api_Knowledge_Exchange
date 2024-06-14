@@ -5,6 +5,8 @@ import User from 'App/Models/User'
 import Hash from '@ioc:Adonis/Core/Hash'
 import { AuthValidator, LoginValidator } from 'App/Validators/AuthValidator';
 import Tutor from 'App/Models/Tutor';
+import Seller from 'App/Models/Seller';
+import Customer from 'App/Models/Customer';
 
 
 export default class AuthController {
@@ -30,10 +32,18 @@ export default class AuthController {
                 tutor.location = location
                 tutor.userId = user.id 
                 await tutor.save()
+            } else if (role === 'customer') {
+                const customer = new Customer()
+                customer.userId = user.id
+                await customer.save()
+            } else if (role === 'seller') {
+                const seller = new Seller()
+                seller.userId = user.id
+                await seller.save()
             }
 
             const token = await auth.use('api').generate(user)
-            return response.send(Response('User Register Successfully', { user, token }))
+            return response.send(Response('User Register Successfully', { user, token, role: user.role }))
         } catch (error) {
             console.error(error)
 
@@ -57,6 +67,7 @@ export default class AuthController {
             })
             return response.send(Response('User Login Successfully', { user, token,role:user.role }))
         } catch (error) {
+            console.log(error)
             return response.status(500).json({ error: { message: 'Internal server error' } })
         }
     }

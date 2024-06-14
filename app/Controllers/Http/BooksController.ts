@@ -11,14 +11,22 @@ export default class booksController {
     public async store({ request, response, auth }: HttpContextContract) {
         try {
             const user = auth.user;
+            console.log('user---------', user, "------------------------------------", user?.id)
             if (user?.role !== 'seller') {
                 return response.status(401).send({ message: "Forbidden: Only sellers can create books" });
             }
+
+            const seller = await Seller.findBy('user_id', user?.id);
+
+            if (!seller) {
+                return response.status(401).send({ message: "Forbidden: Only sellers can create books" });
+            }
+
             const data = await request.validate(BookValidator);
             let book = new Book();
             book.name = data.name;
             book.categoryId = data.category_id;
-            book.sellerId = user.id;
+            book.sellerId = seller.id
             book.author = data.author;
             book.condition = data.condition;
             book.price = data.price;

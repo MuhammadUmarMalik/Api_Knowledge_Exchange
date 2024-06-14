@@ -38,17 +38,24 @@ Route.group(() => {
   Route.get('/categories', 'CategoriesController.index')
   Route.put('/categories/:id', 'CategoriesController.update')
   Route.delete('/categories/:id', 'CategoriesController.destroy')
-
+  //books
+  Route.post('/books', 'BooksController.store')
+  Route.get('/books', 'BooksController.index')
+  Route.put('/books/:id', 'BooksController.update')
+  Route.delete('/books/:id', 'BooksController.destroy')
+  Route.delete('/bookImages/:id', 'BooksController.deleteImage')
   //order
   Route.put('/admin/orders/:id', 'OrdersController.updateOrderStatus')
   Route.put('/admin/orders/:id/:payment-status', 'OrdersController.updatePaymentStatus')
   Route.post("/orders/pagination", "OrdersController.pagination")
 }).prefix('api').middleware(['auth'])
 
+// Categories
+Route.get('/categories', 'CategoriesController.index')
 
 //books endpoints
-Route.post('/books', 'BooksController.store').prefix('api').middleware(['sellerAuth','auth'])
-Route.get('/books', 'BooksController.index').prefix('api').middleware(['sellerAuth', 'auth'])
-Route.put('/books/:id', 'BooksController.update').prefix('api').middleware(['sellerAuth', 'auth'])
-Route.delete('/books/:id', 'BooksController.destroy').prefix('api').middleware(['sellerAuth', 'auth'])
-Route.delete('/bookImages/:id', 'BooksController.deleteImage').prefix('api').middleware(['sellerAuth', 'auth'])
+Route.post('/books', 'BooksController.store').middleware('seller')
+Route.get('/books', 'BooksController.index').prefix('api')
+Route.put('/books/:id', 'BooksController.update').prefix('api').middleware('seller')
+Route.delete('/books/:id', 'BooksController.destroy').prefix('api').middleware('seller')
+Route.delete('/bookImages/:id', 'BooksController.deleteImage').prefix('api').middleware('seller')

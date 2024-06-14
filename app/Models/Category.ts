@@ -7,7 +7,8 @@ export default class Category extends BaseModel {
   public id: number
 
   @column()
-    public name:string
+  public name: string
+  
   @hasMany(() => Book)
   public books: HasMany<typeof Book>
   

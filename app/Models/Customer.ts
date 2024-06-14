@@ -7,6 +7,9 @@ export default class Customer extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
+  @column()
+  public userId: number
+
   @hasOne(() => User)
   public user: HasOne<typeof User>
   
