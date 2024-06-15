@@ -7,9 +7,14 @@ export default class Tutor extends BaseModel {
   public id: number
 
   @column()
-    public userId:number
+  public userId: number
+
   @column()
-    public location:string
+  public location: string
+
+  @column()
+  public profilePicture: string
+
   @hasOne(() => User)
   public user: HasOne<typeof User>
 

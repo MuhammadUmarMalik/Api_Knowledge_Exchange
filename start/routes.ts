@@ -39,11 +39,11 @@ Route.group(() => {
   Route.put('/categories/:id', 'CategoriesController.update')
   Route.delete('/categories/:id', 'CategoriesController.destroy')
   //books
-  Route.post('/books', 'BooksController.store')
-  Route.get('/books', 'BooksController.index')
-  Route.put('/books/:id', 'BooksController.update')
-  Route.delete('/books/:id', 'BooksController.destroy')
-  Route.delete('/bookImages/:id', 'BooksController.deleteImage')
+  Route.post('/admin/books', 'BooksController.store')
+  Route.get('/admin/books', 'BooksController.index')
+  Route.put('/admin/books/:id', 'BooksController.update')
+  Route.delete('/admin/books/:id', 'BooksController.destroy')
+  Route.delete('/admin/bookImages/:id', 'BooksController.deleteImage')
   //order
   Route.put('/admin/orders/:id', 'OrdersController.updateOrderStatus')
   Route.put('/admin/orders/:id/:payment-status', 'OrdersController.updatePaymentStatus')
@@ -59,3 +59,7 @@ Route.get('/books', 'BooksController.index').prefix('api')
 Route.put('/books/:id', 'BooksController.update').prefix('api').middleware('seller')
 Route.delete('/books/:id', 'BooksController.destroy').prefix('api').middleware('seller')
 Route.delete('/bookImages/:id', 'BooksController.deleteImage').prefix('api').middleware('seller')
+
+//order
+
+Route.post('/orders', 'OrdersController.store').prefix('api').middleware('customer')

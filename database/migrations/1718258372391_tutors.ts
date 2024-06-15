@@ -12,6 +12,7 @@ export default class extends BaseSchema {
         .references('users.id')
         .onDelete('CASCADE')
       table.string('location')
+      table.string('profilePicture')
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */

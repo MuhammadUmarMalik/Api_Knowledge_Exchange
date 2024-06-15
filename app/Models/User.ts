@@ -27,8 +27,7 @@ export default class User extends BaseModel {
   @column()
   public phone_number: string
 
-  @column()
-  public profilePicture: string
+
 
 
 

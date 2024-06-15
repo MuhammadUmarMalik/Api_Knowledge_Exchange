@@ -11,7 +11,6 @@ export default class booksController {
     public async store({ request, response, auth }: HttpContextContract) {
         try {
             const user = auth.user;
-            console.log('user---------', user, "------------------------------------", user?.id)
             if (user?.role !== 'seller') {
                 return response.status(401).send({ message: "Forbidden: Only sellers can create books" });
             }

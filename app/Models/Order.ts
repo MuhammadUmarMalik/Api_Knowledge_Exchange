@@ -9,6 +9,9 @@ export default class Order extends BaseModel {
   public id: number
 
   @column()
+  public customerId: number
+
+  @column()
   public order_number: string
 
   @column()
@@ -28,6 +31,9 @@ export default class Order extends BaseModel {
 
   @column()
   public status: string
+
+  @column()
+  public offer: number
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

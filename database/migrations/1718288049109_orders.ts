@@ -14,6 +14,7 @@ export default class extends BaseSchema {
       table.string('phone').notNullable()
       table.text('address').notNullable()
       table.string('status').defaultTo('pending')
+      table.integer('offer').notNullable()
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */
