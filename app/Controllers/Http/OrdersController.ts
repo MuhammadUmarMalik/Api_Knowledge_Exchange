@@ -6,6 +6,7 @@ import Order from 'App/Models/Order'
 import OrderItem from 'App/Models/OrderItem'
 import PaymentDetail from 'App/Models/PaymentDetail'
 import { v4 as uuidv4 } from 'uuid'
+import { Response } from 'App/Utils/ApiUtil'
 export default class OrdersController {
     public async store({ auth, request, response }: HttpContextContract) {
         const { name, email, phone, address, books, offer } = request.only(['name', 'email', 'phone', 'address', 'books', 'offer'])
@@ -45,7 +46,6 @@ export default class OrdersController {
             // Update product quantities
             for (let book of books) {
                 const foundProduct = bookList.find(b => b.id === book.bookId)
-                console.log(foundProduct);
                 if (foundProduct) {
                     foundProduct.quantity -= book.buyingQuantity
                     await foundProduct.save()
@@ -106,4 +106,64 @@ export default class OrdersController {
         }
     }
 
+
+    public async updateOrderStatus({ request, params, response }: HttpContextContract) {
+        const orderId = params.id
+        const { status } = request.only(['status'])
+
+        const order = await Order.find(orderId)
+        if (!order) {
+            return response.status(404).json({ message: 'Order not found' })
+        }
+
+        order.status = status
+        await order.save()
+        await Mail.send((message) => {
+            message
+                .to(order.email)
+                .from('no-reply@yourstore.com')
+                .subject('Order Confirmation')
+                .html(`
+            <h1>Order Confirmation</h1>
+            <p>Dear ${order.name},</p>
+            <p>Thank you for your order. Your order number is <br> ${order.order_number}.</p>
+            <p>We will notify you once your order is ${order.status}.</p>
+            <p>Thank you for shopping with us!</p>
+            <h3>Regards: Knowledge Exchange</h3>
+          `)
+        })
+
+        return response.status(200).json({ message: 'Order status updated successfully', order })
+    }
+
+    public async updatePaymentStatus({ request, params, response }: HttpContextContract) {
+        const orderId = params.id
+        const { status } = request.only(['status'])
+
+        const paymentDetail = await PaymentDetail.findBy('order_id', orderId)
+        if (!paymentDetail) {
+            return response.status(404).json({ message: 'Payment details not found' })
+        }
+
+        paymentDetail.status = status
+        await paymentDetail.save()
+
+        return response.status(200).send(Response('Payment status updated successfully', paymentDetail))
+    }
+
+    public async getOrderDetails({ params, response }: HttpContextContract) {
+        const orderNumber = params.order_number
+
+        const order = await Order.query()
+            .where('order_number', orderNumber)
+            .preload('orderItems')
+            .preload('paymentDetails')
+            .first()
+
+        if (!order) {
+            return response.status(404).json({ message: 'Order not found' })
+        }
+
+        return response.status(200).json({ message: 'Order details fetched successfully', order })
+    }
 }

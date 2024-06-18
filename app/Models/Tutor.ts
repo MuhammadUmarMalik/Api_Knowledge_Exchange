@@ -10,6 +10,15 @@ export default class Tutor extends BaseModel {
   public userId: number
 
   @column()
+  public subject: string
+
+  @column()
+  public qualifications: string
+
+  @column()
+  public fee: number
+
+  @column()
   public location: string
 
   @column()

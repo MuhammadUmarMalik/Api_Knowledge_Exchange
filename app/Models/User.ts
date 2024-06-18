@@ -19,17 +19,10 @@ export default class User extends BaseModel {
   public password: string
 
   @column()
-  public rememberMeToken: string | null
+  public rememberMeToken: string 
 
   @column()
   public role: string
-
-  @column()
-  public phone_number: string
-
-
-
-
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

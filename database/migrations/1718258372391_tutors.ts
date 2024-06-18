@@ -11,6 +11,9 @@ export default class extends BaseSchema {
         .unsigned()
         .references('users.id')
         .onDelete('CASCADE')
+      table.string('subject')
+      table.string('qualifications')
+      table.integer('fee')
       table.string('location')
       table.string('profilePicture')
       /**

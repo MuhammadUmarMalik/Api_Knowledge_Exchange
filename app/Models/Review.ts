@@ -21,7 +21,7 @@ export default class Review extends BaseModel {
   public rating: number
 
   @column()
-  public review: string
+  public comment: string
 
   @column()
   public name: string

@@ -10,6 +10,12 @@ export default class Seller extends BaseModel {
   @column()
   public userId: number
 
+  @column()
+  public name: string
+
+  @column()
+  public phone_number: string
+
   @hasOne(() => User)
   public user: HasOne<typeof User>
 
