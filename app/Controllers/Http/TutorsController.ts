@@ -1,6 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Tutor from 'App/Models/Tutor'
 import User from 'App/Models/User'
+import { PaginationUtil } from 'App/Utils/PaginationUtil'
 
 export default class TutorsController {
     public async index({ response }: HttpContextContract) {
@@ -45,5 +46,28 @@ export default class TutorsController {
         const location = params.location
         const tutors = await Tutor.query().where('location', location)
         return response.json(tutors)
+    }
+
+    public async paginateBooks({ request, response }: HttpContextContract) {
+        const { page = 1, pageSize = 10, filter, sort } = request.only(['page', 'pageSize', 'filter', 'sort']);
+
+        // Define the query for fetching books
+        const bookQuery = Tutor.query();
+
+        // Define pagination options
+        const paginationOptions = {
+            page,
+            pageSize,
+            filter,
+            sort
+        };
+
+        try {
+            // Use the PaginationUtil to get the paginated result
+            const paginatedResult = await PaginationUtil(bookQuery, paginationOptions, response);
+            response.status(200).json(paginatedResult);
+        } catch (error) {
+            response.status(400).json({ error: error.message });
+        }
     }
 }

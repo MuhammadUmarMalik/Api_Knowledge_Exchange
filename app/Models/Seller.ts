@@ -16,6 +16,9 @@ export default class Seller extends BaseModel {
   @column()
   public phone_number: string
 
+  @column()
+  public status: boolean
+
   @hasOne(() => User)
   public user: HasOne<typeof User>
 

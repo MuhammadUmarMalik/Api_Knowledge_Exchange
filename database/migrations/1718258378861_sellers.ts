@@ -12,6 +12,9 @@ export default class extends BaseSchema {
         .references('id')
         .inTable('users')
         .onDelete('CASCADE')
+      table.string('name').notNullable()
+      table.string('phone_number').notNullable()
+      table.string('status').defaultTo('pending')
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */

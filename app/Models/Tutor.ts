@@ -22,6 +22,9 @@ export default class Tutor extends BaseModel {
   public location: string
 
   @column()
+  public status: boolean
+
+  @column()
   public profilePicture: string
 
   @hasOne(() => User)

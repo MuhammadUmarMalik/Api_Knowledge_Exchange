@@ -6,6 +6,7 @@ import Application from "@ioc:Adonis/Core/Application";
 import BookImage from "App/Models/BookImage";
 import fs from 'fs/promises'
 import Seller from "App/Models/Seller";
+import { PaginationUtil } from "App/Utils/PaginationUtil";
 
 export default class booksController {
     public async store({ request, response, auth }: HttpContextContract) {
@@ -143,48 +144,48 @@ export default class booksController {
 
 
 
-    public async pagination({ request, response }: HttpContextContract) {
-        try {
-            const { date, name, categoryID } = request.qs()
-            let query = Book.query().preload('images')
+    // public async pagination({ request, response }: HttpContextContract) {
+    //     try {
+    //         const { date, name, categoryID } = request.qs()
+    //         let query = Book.query().preload('images')
 
-            if (date) {
-                query = query.where('created_at', date)
-            }
+    //         if (date) {
+    //             query = query.where('created_at', date)
+    //         }
 
-            if (name) {
-                query = query.where('name', 'like', `%${name}%`)
-            }
+    //         if (name) {
+    //             query = query.where('name', 'like', `%${name}%`)
+    //         }
 
-            if (categoryID) {
-                query = query.where('category_id', categoryID)
-            }
+    //         if (categoryID) {
+    //             query = query.where('category_id', categoryID)
+    //         }
 
-            const page = request.input('page', 1)
-            const limit = request.input('limit', 10)
-            const results = await query.paginate(page, limit)
+    //         const page = request.input('page', 1)
+    //         const limit = request.input('limit', 10)
+    //         const results = await query.paginate(page, limit)
 
-            results.map((book) => {
-                return {
-                    id: book.id,
-                    name: book.name,
-                    category: book.categoryId,
-                    author: book.author,
-                    condition: book.condition,
-                    price: book.price,
-                    quantity: book.quantity,
-                    images: book.images ? book.images.map((image) => image.path) : [], // Include image paths
-                    created_at: book.createdAt,
-                    updated_at: book.updatedAt,
-                };
-            });
+    //         results.map((book) => {
+    //             return {
+    //                 id: book.id,
+    //                 name: book.name,
+    //                 category: book.categoryId,
+    //                 author: book.author,
+    //                 condition: book.condition,
+    //                 price: book.price,
+    //                 quantity: book.quantity,
+    //                 images: book.images ? book.images.map((image) => image.path) : [], // Include image paths
+    //                 created_at: book.createdAt,
+    //                 updated_at: book.updatedAt,
+    //             };
+    //         });
 
-            return response.send(Response('Get All books with Pagination', results))
-        } catch (error) {
-            console.log(error)
-            return response.status(500).send(Response('internal server error', error))
-        }
-    }
+    //         return response.send(Response('Get All books with Pagination', results))
+    //     } catch (error) {
+    //         console.log(error)
+    //         return response.status(500).send(Response('internal server error', error))
+    //     }
+    // }
 
     public async deleteImage({ params, response }: HttpContextContract) {
         try {
@@ -228,6 +229,29 @@ export default class booksController {
             return response.status(500).send(Response('Internal Server Error', error))
         }
     }
+    public async paginateBooks({ request, response }: HttpContextContract) {
+        const { page = 1, pageSize = 10, filter, sort } = request.only(['page', 'pageSize', 'filter', 'sort']);
+
+        // Define the query for fetching books
+        const bookQuery = Book.query();
+
+        // Define pagination options
+        const paginationOptions = {
+            page,
+            pageSize,
+            filter,
+            sort
+        };
+
+        try {
+            // Use the PaginationUtil to get the paginated result
+            const paginatedResult = await PaginationUtil(bookQuery, paginationOptions, response);
+            response.status(200).json(paginatedResult);
+        } catch (error) {
+            response.status(400).json({ error: error.message });
+        }
+    }
+
 }
 
 

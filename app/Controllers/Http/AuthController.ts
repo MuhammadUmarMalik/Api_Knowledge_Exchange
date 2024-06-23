@@ -48,4 +48,9 @@ export default class AuthController {
         await user.delete()
         return response.send(Response('User Deleted Successfully', user))
     }
+
+    public async logout({ auth, response }: HttpContextContract) {
+        await auth.logout()
+        return response.status(200)
+    }
 }

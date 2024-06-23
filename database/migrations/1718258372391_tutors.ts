@@ -11,11 +11,12 @@ export default class extends BaseSchema {
         .unsigned()
         .references('users.id')
         .onDelete('CASCADE')
-      table.string('subject')
-      table.string('qualifications')
-      table.integer('fee')
-      table.string('location')
-      table.string('profilePicture')
+      table.string('subject').notNullable()
+      table.string('qualifications').notNullable()
+      table.integer('fee').notNullable()
+      table.string('location').notNullable()
+      table.string('status').defaultTo('pending')
+      table.string('profilePicture').notNullable()
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */
