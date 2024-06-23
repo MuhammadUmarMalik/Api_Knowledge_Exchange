@@ -31,10 +31,10 @@ Route.delete('/users/:id', 'AuthController.destroy').prefix('api')
 Route.post('/logout', 'AuthController.logout').prefix('api')
 
 // Categories
-Route.post('/categories', 'CategoriesController.store').prefix('api').middleware('seller')
-Route.get('/categories', 'CategoriesController.index').prefix('api').middleware('seller')
-Route.put('/categories/:id', 'CategoriesController.update').prefix('api').middleware('seller')
-Route.delete('/categories/:id', 'CategoriesController.destroy').prefix('api').middleware('seller')
+Route.post('/seller/categories', 'CategoriesController.store').prefix('api').middleware('seller')
+Route.get('/seller/categories', 'CategoriesController.index').prefix('api').middleware('seller')
+Route.put('/seller/categories/:id', 'CategoriesController.update').prefix('api').middleware('seller')
+Route.delete('/seller/categories/:id', 'CategoriesController.destroy').prefix('api').middleware('seller')
 Route.get('/categories', 'CategoriesController.index').prefix('api') // get categories for users
 //books endpoints
 Route.post('/books', 'BooksController.store').middleware('seller')
@@ -49,9 +49,9 @@ Route.put('/seller/orders/:id/:payment-status', 'OrdersController.updatePaymentS
 Route.post("/seller/orders/pagination", "OrdersController.pagination").prefix('api').middleware('seller')
 
 //all customer endpoints
-Route.post('/orders', 'OrdersController.store').prefix('api').middleware('customer')
-Route.get('/books', 'BooksController.index').prefix('api').middleware('customer')
-Route.get('/tutors', 'TutorsController.index').prefix('api')
+Route.post('/customer/orders', 'OrdersController.store').prefix('api').middleware('customer')
+Route.get('/customer/books', 'BooksController.index').prefix('api').middleware('customer')
+Route.get('/customer/tutors', 'TutorsController.index').prefix('api')
 
 //tutors endpoints
 

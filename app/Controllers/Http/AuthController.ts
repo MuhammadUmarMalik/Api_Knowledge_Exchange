@@ -14,8 +14,10 @@ export default class AuthController {
             user.email = email
             user.password = password
             await user.save()
+            console.log('------------>', user)
 
             const token = await auth.use('api').generate(user)
+
             return response.send(Response('User Register Successfully', { user, token }))
         } catch (error) {
             console.error(error)
