@@ -25,10 +25,10 @@ Route.get('/', async () => {
 })
 
 //user register and login endpoints
-Route.post('/register', 'AuthController.register')
-Route.post('/login', 'AuthController.login')
-Route.delete('/users/:id', 'AuthController.destroy')
-Route.post('/logout', 'AuthController.logout')
+Route.post('/register', 'AuthController.register').prefix('api')
+Route.post('/login', 'AuthController.login').prefix('api')
+Route.delete('/users/:id', 'AuthController.destroy').prefix('api')
+Route.post('/logout', 'AuthController.logout').prefix('api')
 
 // Categories
 Route.post('/categories', 'CategoriesController.store').prefix('api').middleware('seller')
