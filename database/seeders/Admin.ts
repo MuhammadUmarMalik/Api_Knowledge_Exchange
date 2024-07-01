@@ -10,7 +10,6 @@ export default class AdminSeeder extends BaseSeeder {
       email: 'admin@example.com',
       password: 'adminpassword',
       role: 'admin',
-      phone_number: '0001112223',
     })
   }
 }

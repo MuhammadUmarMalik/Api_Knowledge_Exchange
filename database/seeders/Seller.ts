@@ -11,11 +11,13 @@ export default class SellerSeeder extends BaseSeeder {
       email: 'seller@example.com',
       password: 'password',
       role: 'seller',
-      phone_number: '1122334455'
     })
 
     await Seller.create({
-      userId: user.id
+      userId: user.id,
+      name: 'Seller User',
+      phoneNumber: '03171600808',
+      status: 'pending'
     })
   }
 }

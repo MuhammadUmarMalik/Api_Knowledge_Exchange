@@ -9,11 +9,12 @@ export default class TutorsController {
         return response.json(tutors)
     }
 
-    public async store({ request, response }: HttpContextContract) {
+    public async store({ auth, request, response }: HttpContextContract) {
+        const user = auth.user?.id
         const data = request.only(['user_id', 'subject', 'qualifications', 'fee', 'location', 'profilePicture'])
 
         // Check if user exists
-        const user = await User.find(data.user_id)
+        // const user = await User.find(data.user_id)
         if (!user) {
             return response.status(404).json({ message: 'User not found' })
         }

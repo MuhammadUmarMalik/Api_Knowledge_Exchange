@@ -11,12 +11,16 @@ export default class TutorSeeder extends BaseSeeder {
       email: 'tutor@example.com',
       password: 'password',
       role: 'tutor',
-      phone_number: '1234567890'
     })
 
     await Tutor.create({
-      location: 'Some Location',
-      userId: user.id
+      userId: user.id,
+      subject: 'English',
+      qualifications: 'M.A',
+      fee: 10000,
+      location: 'Johar Town',
+      status: 'pending',
+      profilePicture: 'default.png'
     })
   }
 }

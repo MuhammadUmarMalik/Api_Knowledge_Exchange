@@ -6,13 +6,16 @@ export default class extends BaseSeeder {
     // Write your database queries inside the run method
     await Category.createMany([
       {
-        name:'Math'
+        name: 'Course Books'
       },
       {
-        name:'Science'
+        name: 'Novels'
       },
       {
-        name:'Arts'
+        name: 'Peotry'
+      },
+      {
+        name: 'Fantasy'
       }
     ])
   }

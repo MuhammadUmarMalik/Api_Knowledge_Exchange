@@ -11,7 +11,6 @@ export default class CustomerSeeder extends BaseSeeder {
       email: 'customer@example.com',
       password: 'password',
       role: 'customer',
-      phone_number: '0987654321'
     })
 
     await Customer.create({

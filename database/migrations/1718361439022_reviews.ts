@@ -13,7 +13,6 @@ export default class extends BaseSchema {
       table.string('comment').notNullable()
       table.string('name').notNullable()
       table.string('email').notNullable()
-      table.string('status').defaultTo('pending')
 
 
       /**

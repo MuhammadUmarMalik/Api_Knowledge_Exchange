@@ -27,37 +27,85 @@ Route.get('/', async () => {
 //user register and login endpoints
 Route.post('/register', 'AuthController.register').prefix('api')
 Route.post('/login', 'AuthController.login').prefix('api')
-Route.delete('/users/:id', 'AuthController.destroy').prefix('api')
-Route.post('/logout', 'AuthController.logout').prefix('api')
 
-// Categories
-Route.post('/seller/categories', 'CategoriesController.store').prefix('api').middleware('seller')
-Route.get('/seller/categories', 'CategoriesController.index').prefix('api').middleware('seller')
-Route.put('/seller/categories/:id', 'CategoriesController.update').prefix('api').middleware('seller')
-Route.delete('/seller/categories/:id', 'CategoriesController.destroy').prefix('api').middleware('seller')
-Route.get('/categories', 'CategoriesController.index').prefix('api') // get categories for users
+// contact 
+Route.post('/contact', 'ContactsController.store')
+
+// Route.group(() => {
+//   Route.post('request-role', 'RequestRolesController.requestRole').middleware('auth')
+//   Route.put('approve-request/:role/:id', 'RequestRolesController.approve').middleware('adminAuth')
+//   Route.put('reject-request/:role/:id', 'RequestRolesController.reject').middleware('adminAuth')
+// }).prefix('api')
+
+
+
+Route.group(() => {
+//user endpoints
+  Route.delete('/users/:id', 'AuthController.destroy').prefix('api')
+  // Route.post('/logout', 'AuthController.logout').prefix('api')
+
+  // Categories
+  Route.post('/categories', 'CategoriesController.store')
+  Route.get('/categories', 'CategoriesController.index')
+  Route.put('/categories/:id', 'CategoriesController.update')
+  Route.delete('/categories/:id', 'CategoriesController.destroy')
+
+  //books endpoints
+  Route.post('/books', 'BooksController.store')
+  Route.get('/books', 'BooksController.index')
+  Route.put('/books/:id', 'BooksController.update')
+  Route.delete('/books/:id', 'BooksController.destroy')
+  Route.delete('/bookImages/:id', 'BooksController.deleteImage')
+  // order endpoints 
+  Route.put('/orders/:id', 'OrdersController.updateOrderStatus')
+  Route.put('/orders/:id/:payment-status', 'OrdersController.updatePaymentStatus')
+  // Route.post("/orders/pagination", "OrdersController.pagination")
+  //tutors endpoints
+  Route.get('/tutors/:id', 'TutorsController.show')
+  Route.put('/tutors/:id', 'TutorsController.update')
+  Route.delete('/tutors/:id', 'TutorsController.destroy')
+  Route.get('/location/:location', 'TutorsController.getByLocation')
+}).prefix('api').middleware('auth')
+
+Route.group(() => {
+//tutor endpoints
+// Route.delete('/users/:id', 'AuthController.destroy').prefix('api')
+  Route.post('/logout', 'AuthController.logout').prefix('api')
+
+  // Categories
+  Route.post('/seller/categories', 'CategoriesController.store')
+  Route.get('/seller/categories', 'CategoriesController.index')
+  Route.put('/seller/categories/:id', 'CategoriesController.update')
+  Route.delete('/seller/categories/:id', 'CategoriesController.destroy')
+
 //books endpoints
-Route.post('/books', 'BooksController.store').middleware('seller')
-Route.get('/books', 'BooksController.index').prefix('api').middleware('seller')
-Route.put('/books/:id', 'BooksController.update').prefix('api').middleware('seller')
-Route.delete('/books/:id', 'BooksController.destroy').prefix('api').middleware('seller')
-Route.delete('/bookImages/:id', 'BooksController.deleteImage').prefix('api').middleware('seller')
-// order endpoints for seller
-
-Route.put('/seller/orders/:id', 'OrdersController.updateOrderStatus').prefix('api').middleware('seller')
-Route.put('/seller/orders/:id/:payment-status', 'OrdersController.updatePaymentStatus').prefix('api').middleware('seller')
-Route.post("/seller/orders/pagination", "OrdersController.pagination").prefix('api').middleware('seller')
-
-//all customer endpoints
-Route.post('/customer/orders', 'OrdersController.store').prefix('api').middleware('customer')
-Route.get('/customer/books', 'BooksController.index').prefix('api').middleware('customer')
-Route.get('/customer/tutors', 'TutorsController.index').prefix('api')
-
-//tutors endpoints
+  Route.post('/seller/books', 'BooksController.store')
+  Route.get('/seller/books', 'BooksController.index')
+  Route.put('/seller/books/:id', 'BooksController.update')
+  Route.delete('/seller/books/:id', 'BooksController.destroy')
+  Route.delete('/seller/bookImages/:id', 'BooksController.deleteImage')
+  // order endpoints 
+  Route.put('/seller/orders/:id', 'OrdersController.updateOrderStatus')
+  Route.put('/seller/orders/:id/:payment-status', 'OrdersController.updatePaymentStatus')
+  // Route.post("/seller/orders/pagination", "OrdersController.pagination")
 
 
-Route.post('/tutors', 'TutorsController.store').prefix('api')
-Route.get('/tutors/:id', 'TutorsController.show').prefix('api')
-Route.put('/tutors/:id', 'TutorsController.update').prefix('api').middleware('tutor')
-Route.delete('/tutors/:id', 'TutorsController.destroy').prefix('api').middleware('tutor')
-Route.get('/location/:location', 'TutorsController.getByLocation').prefix('api')
+}).prefix('api').middleware(['auth', 'seller'])
+
+
+Route.group(() => {
+  //tutor endpoints
+  // Route.delete('/users/:id', 'AuthController.destroy').prefix('api')
+  // Route.post('/logout', 'AuthController.logout').prefix('api')
+  //books endpoints
+  Route.get('/customer/books', 'BooksController.index')
+  //all customer endpoints
+  Route.post('/customer/orders', 'OrdersController.store').prefix('api').middleware('customer')
+  Route.get('/customer/books', 'BooksController.index').prefix('api').middleware('customer')
+  Route.get('/customer/tutors', 'TutorsController.index').prefix('api')
+
+
+  Route.post('/tutors', 'TutorsController.store')
+  Route.post('/seller', 'SellersController.store')
+
+}).prefix('api').middleware(['auth', 'customer'])

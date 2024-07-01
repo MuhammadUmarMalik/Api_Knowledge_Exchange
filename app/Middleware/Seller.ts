@@ -1,6 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
-export default class AdminAuth {
+export default class Seller {
     public async handle({ auth, response }: HttpContextContract, next: () => Promise<void>) {
         try {
             // Ensure user is authenticated

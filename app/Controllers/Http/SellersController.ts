@@ -4,7 +4,9 @@ import User from 'App/Models/User'
 
 export default class SellersController {
     public async index({ response }: HttpContextContract) {
+
         const tutors = await Seller.all()
+
         return response.json(tutors)
     }
 

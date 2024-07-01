@@ -22,7 +22,7 @@ export default class Tutor extends BaseModel {
   public location: string
 
   @column()
-  public status: boolean
+  public status: string
 
   @column()
   public profilePicture: string
