@@ -22,7 +22,7 @@ export default class User extends BaseModel {
   public rememberMeToken: string 
 
   @column()
-  public role: string
+  public role: 'customer' | 'seller' | 'tutor' | 'admin'
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

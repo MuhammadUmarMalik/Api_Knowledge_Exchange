@@ -14,11 +14,9 @@ export default class AuthController {
             user.email = email
             user.password = password
             await user.save()
-            console.log('------------>', user)
 
-            const token = await auth.use('api').generate(user)
 
-            return response.send(Response('User Register Successfully', { user, token }))
+            return response.send(Response('User Register Successfully', { user }))
         } catch (error) {
             console.error(error)
 
@@ -54,5 +52,14 @@ export default class AuthController {
     public async logout({ auth, response }: HttpContextContract) {
         await auth.logout()
         return response.status(200)
+    }
+
+    public async update({ request, response }: HttpContextContract) {
+        try {
+            const data = request.all()
+
+        } catch (error) {
+
+        }
     }
 }

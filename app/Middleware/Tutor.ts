@@ -1,26 +1,11 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
-export default class AdminAuth {
+export default class Tutor {
     public async handle({ auth, response }: HttpContextContract, next: () => Promise<void>) {
-        try {
-            // Ensure user is authenticated
-            await auth.use('api').authenticate()
-
-            // Retrieve user's role from auth
-            const userRole = auth.user!.role
-
-            console.log('Authenticated User Role:', userRole)
-
-            // Check if user has 'seller' role
-            if (userRole !== 'tutor') {
-                return response.unauthorized({ error: 'Role based authorization failed' })
-            }
-
-            // Proceed to next middleware or controller action
-            await next()
-        } catch (error) {
-            console.error('Error in AdminAuth middleware:', error.message)
-            return response.unauthorized({ error: 'Unauthorized access' })
+        const user = await auth.authenticate()
+        if (user.role !== 'tutor') {
+            return response.unauthorized('Access denied')
         }
+        await next()
     }
 }

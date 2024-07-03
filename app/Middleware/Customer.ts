@@ -1,26 +1,28 @@
+// import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
+// export default class AdminAuth {
+//     public async handle({ auth, response }: HttpContextContract, next: () => Promise<void>) {
+//         try {
+//             const user = auth.user?.role
+//             console.log('user------->', auth.user?.role)
+//             if (!user || user !== 'customer') {
+//                 return response.unauthorized({ error: 'Role Base Authorization Failed' });
+//             }
+//             await next();
+//         } catch (error) {
+//             return response.status(400).send(error);
+//         }
+//     }
+// }
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
-export default class AdminAuth {
+export default class Customer {
     public async handle({ auth, response }: HttpContextContract, next: () => Promise<void>) {
-        try {
-            // Ensure user is authenticated
-            await auth.use('api').authenticate()
+        const user = await auth.authenticate()
+        console.log(user)
+        if (user.role !== 'customer') {
 
-            // Retrieve user's role from auth
-            const userRole = auth.user!.role
-
-            console.log('Authenticated User Role:', userRole)
-
-            // Check if user has 'seller' role
-            if (userRole !== 'customer') {
-                return response.unauthorized({ error: 'Role based authorization failed' })
-            }
-
-            // Proceed to next middleware or controller action
-            await next()
-        } catch (error) {
-            console.error('Error in AdminAuth middleware:', error.message)
-            return response.unauthorized({ error: 'Unauthorized access' })
+            return response.unauthorized('Access denied')
         }
+        await next()
     }
 }

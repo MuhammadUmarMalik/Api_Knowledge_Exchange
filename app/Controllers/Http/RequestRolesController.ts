@@ -1,74 +1,127 @@
-// import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-// import User from 'App/Models/User'
-// import Seller from 'App/Models/Seller'
-// import Tutor from 'App/Models/Tutor'
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import User from 'App/Models/User'
+import Seller from 'App/Models/Seller'
+import Tutor from 'App/Models/Tutor'
 
-// export default class RoleRequestController {
-//     public async requestRole({ request, auth, response }: HttpContextContract) {
-//         const user = auth.user
+export default class RequestRolesController {
+    public async applyAsSeller({ auth, request, response }: HttpContextContract) {
+        const user = auth.user as User
+        const { name, phoneNumber } = request.only(['name', 'phoneNumber'])
 
-//         if (!user) {
-//             return response.unauthorized({ message: 'You must be logged in to request a role' })
-//         }
+        const seller = new Seller()
+        seller.userId = user.id
+        seller.name = name
+        seller.phoneNumber = phoneNumber
+        seller.status = 'pending'
+        await seller.save()
 
-//         const { role, name, phoneNumber, subject, qualifications, fee, location, profilePicture } = request.all()
+        return response.ok({ message: 'Seller application submitted' })
+    }
 
-//         if (role === 'seller') {
-//             const existingRequest = await Seller.query().where('user_id', user.id).first()
-//             if (existingRequest) {
-//                 return response.badRequest({ message: 'You have already requested this role' })
-//             }
-//             await Seller.create({ userId: user.id, name, phoneNumber, status: 'pending' })
-//         } else if (role === 'tutor') {
-//             const existingRequest = await Tutor.query().where('user_id', user.id).first()
-//             if (existingRequest) {
-//                 return response.badRequest({ message: 'You have already requested this role' })
-//             }
-//             await Tutor.create({ userId: user.id, subject, qualifications, fee, location, profilePicture, })
-//         } else {
-//             return response.badRequest({ message: 'Invalid role requested' })
-//         }
+    public async applyAsTutor({ auth, request, response }: HttpContextContract) {
+        const user = auth.user as User
+        const { subject, qualifications, fee, location, profilePicture } = request.only([
+            'subject', 'qualifications', 'fee', 'location', 'profilePicture'
+        ])
 
-//         return response.status(201).json({ message: 'Request submitted successfully' })
-//     }
+        const tutor = new Tutor()
+        tutor.userId = user.id
+        tutor.subject = subject
+        tutor.qualifications = qualifications
+        tutor.fee = fee
+        tutor.location = location
+        tutor.profilePicture = profilePicture
+        tutor.status = 'pending'
+        await tutor.save()
 
-//     public async approve({ params, response }: HttpContextContract) {
-//         const { id, role } = params
+        return response.ok({ message: 'Tutor application submitted' })
+    }
 
-//         let request
-//         if (role === 'seller') {
-//             request = await Seller.findOrFail(id)
-//         } else if (role === 'tutor') {
-//             request = await Tutor.findOrFail(id)
-//         } else {
-//             return response.badRequest({ message: 'Invalid role' })
-//         }
+    public async approve({ auth, params, response }: HttpContextContract) {
+        const admin = auth.user as User
 
-//         request.status = 'approved'
-//         await request.save()
+        if (admin.role !== 'admin') {
+            return response.unauthorized('Role based authorization failed')
+        }
 
-//         const user = await User.findOrFail(request.userId)
-//         user.role = role
-//         await user.save()
+        const { role, userId } = params
+        const user = await User.findOrFail(userId)
 
-//         return response.status(200).json({ message: 'Request approved' })
-//     }
+        if (role === 'seller') {
+            const seller = await Seller.query().where('user_id', user.id).first()
+            if (!seller) {
+                return response.badRequest('Seller not found')
+            }
+            seller.status = 'active'
+            await seller.save()
+            user.role = 'seller'
+            await user.save()
+        } else if (role === 'tutor') {
+            const tutor = await Tutor.query().where('user_id', user.id).first()
+            if (!tutor) {
+                return response.badRequest('Tutor not found')
+            }
+            tutor.status = 'active'
+            await tutor.save()
+            user.role = 'tutor'
+            await user.save()
+        } else {
+            return response.badRequest('Invalid role')
+        }
 
-//     public async reject({ params, response }: HttpContextContract) {
-//         const { id, role } = params
+        return response.ok({ message: 'Role approved' })
+    }
 
-//         let request
-//         if (role === 'seller') {
-//             request = await Seller.findOrFail(id)
-//         } else if (role === 'tutor') {
-//             request = await Tutor.findOrFail(id)
-//         } else {
-//             return response.badRequest({ message: 'Invalid role' })
-//         }
+    public async getPendingApplications({ response }: HttpContextContract) {
+        try {
+            const pendingSellers = await Seller.query().where('status', 'pending').preload('user')
+            const pendingTutors = await Tutor.query().where('status', 'pending').preload('user')
 
-//         request.status = 'rejected'
-//         await request.save()
+            return response.ok({ pendingSellers, pendingTutors })
+        } catch (error) {
+            return response.status(500).send({ error: 'Internal server error' })
+        }
+    }
 
-//         return response.status(200).json({ message: 'Request rejected' })
-//     }
-// }
+    public async getSellerStatus({ auth, response }: HttpContextContract) {
+        try {
+            const user = auth.user
+            if (!user) {
+                return response.unauthorized('User not authenticated')
+            }
+
+            let sellerStatus: string | null = null
+
+            const sellerApplication = await Seller.query().where('user_id', user.id).first()
+            if (sellerApplication) {
+                sellerStatus = sellerApplication.status || null
+            }
+
+            return response.ok({ sellerStatus })
+        } catch (error) {
+            console.error('Error fetching seller status:', error)
+            return response.status(500).send({ error: 'Internal server error' })
+        }
+    }
+
+    public async getTutorStatus({ auth, response }: HttpContextContract) {
+        try {
+            const user = auth.user
+            if (!user) {
+                return response.unauthorized('User not authenticated')
+            }
+
+            let tutorStatus: string | null = null
+
+            const tutorApplication = await Tutor.query().where('user_id', user.id).first()
+            if (tutorApplication) {
+                tutorStatus = tutorApplication.status || null
+            }
+
+            return response.ok({ tutorStatus })
+        } catch (error) {
+            console.error('Error fetching tutor status:', error)
+            return response.status(500).send({ error: 'Internal server error' })
+        }
+    }
+}

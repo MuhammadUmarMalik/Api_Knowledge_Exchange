@@ -31,14 +31,6 @@ Route.post('/login', 'AuthController.login').prefix('api')
 // contact 
 Route.post('/contact', 'ContactsController.store')
 
-// Route.group(() => {
-//   Route.post('request-role', 'RequestRolesController.requestRole').middleware('auth')
-//   Route.put('approve-request/:role/:id', 'RequestRolesController.approve').middleware('adminAuth')
-//   Route.put('reject-request/:role/:id', 'RequestRolesController.reject').middleware('adminAuth')
-// }).prefix('api')
-
-
-
 Route.group(() => {
 //user endpoints
   Route.delete('/users/:id', 'AuthController.destroy').prefix('api')
@@ -65,47 +57,27 @@ Route.group(() => {
   Route.put('/tutors/:id', 'TutorsController.update')
   Route.delete('/tutors/:id', 'TutorsController.destroy')
   Route.get('/location/:location', 'TutorsController.getByLocation')
+
+  // status approve
+  Route.post('/approve-role/:role/:userId', 'RequestRolesController.approve')
+  Route.get('/pending-applications', 'RequestRolesController.getPendingApplications')
 }).prefix('api').middleware('auth')
 
 Route.group(() => {
-//tutor endpoints
-// Route.delete('/users/:id', 'AuthController.destroy').prefix('api')
-  Route.post('/logout', 'AuthController.logout').prefix('api')
-
-  // Categories
+  // Seller-specific routes
+  Route.post('/logout', 'AuthController.logout')
   Route.post('/seller/categories', 'CategoriesController.store')
   Route.get('/seller/categories', 'CategoriesController.index')
-  Route.put('/seller/categories/:id', 'CategoriesController.update')
-  Route.delete('/seller/categories/:id', 'CategoriesController.destroy')
-
-//books endpoints
-  Route.post('/seller/books', 'BooksController.store')
-  Route.get('/seller/books', 'BooksController.index')
-  Route.put('/seller/books/:id', 'BooksController.update')
-  Route.delete('/seller/books/:id', 'BooksController.destroy')
-  Route.delete('/seller/bookImages/:id', 'BooksController.deleteImage')
-  // order endpoints 
-  Route.put('/seller/orders/:id', 'OrdersController.updateOrderStatus')
-  Route.put('/seller/orders/:id/:payment-status', 'OrdersController.updatePaymentStatus')
-  // Route.post("/seller/orders/pagination", "OrdersController.pagination")
-
-
-}).prefix('api').middleware(['auth', 'seller'])
-
+  // Other seller routes...
+}).prefix('api').middleware('seller')
 
 Route.group(() => {
-  //tutor endpoints
-  // Route.delete('/users/:id', 'AuthController.destroy').prefix('api')
-  // Route.post('/logout', 'AuthController.logout').prefix('api')
-  //books endpoints
+  // Customer-specific routes
+  Route.post('/customer/orders', 'OrdersController.store')
   Route.get('/customer/books', 'BooksController.index')
-  //all customer endpoints
-  Route.post('/customer/orders', 'OrdersController.store').prefix('api').middleware('customer')
-  Route.get('/customer/books', 'BooksController.index').prefix('api').middleware('customer')
-  Route.get('/customer/tutors', 'TutorsController.index').prefix('api')
-
-
-  Route.post('/tutors', 'TutorsController.store')
-  Route.post('/seller', 'SellersController.store')
-
-}).prefix('api').middleware(['auth', 'customer'])
+  Route.get('/customer/tutors', 'TutorsController.index')
+  Route.post('/apply-seller', 'RequestRolesController.applyAsSeller')
+  Route.post('/apply-tutor', 'RequestRolesController.applyAsTutor')
+  Route.get('/seller-status', 'RequestRolesController.getSellerStatus')
+  Route.get('/tutor-status', 'RequestRolesController.getTutorStatus')
+}).prefix('api').middleware('customer')

@@ -44,7 +44,7 @@ export default class booksController {
                 bookImage.path = `uploads/${image.fileName}`;
                 await bookImage.save();
 
-                bookImages.push(bookImage);
+                bookImages.push(bookImage)
             }
 
             return response.send(

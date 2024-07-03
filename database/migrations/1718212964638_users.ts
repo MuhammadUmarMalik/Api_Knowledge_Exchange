@@ -10,7 +10,7 @@ export default class extends BaseSchema {
       table.string('gender')
       table.string('email', 255)
       table.string('password', 180)
-      table.string('role').defaultTo('customer') 
+      table.enum('role', ['customer', 'seller', 'tutor', 'admin']).defaultTo('customer')
       table.string('remember_me_token')
 
       /**
