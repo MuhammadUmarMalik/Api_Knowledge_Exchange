@@ -6,10 +6,9 @@ export default class ContactController {
     public async store({ request, response }: HttpContextContract) {
         const data = await request.validate(ContactValidator)
         const contact = await Contact.create({
-            firstName: data.first_name,
-            lastName: data.last_name,
+            name: data.name,
             email: data.email,
-            phoneNumber: data.phone_number,
+            subject: data.subject,
             message: data.message,
         })
         return response.created(contact)

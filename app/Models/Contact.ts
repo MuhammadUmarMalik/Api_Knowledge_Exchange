@@ -7,16 +7,13 @@ export default class Contact extends BaseModel {
   public id: number
 
   @column()
-  public firstName: string
-
-  @column()
-  public lastName: string
+  public name: string
 
   @column()
   public email: string
 
   @column()
-  public phoneNumber: string
+  public subject: string
 
   @column()
   public message: string
