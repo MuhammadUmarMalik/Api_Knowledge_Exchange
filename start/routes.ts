@@ -39,8 +39,8 @@ Route.group(() => {
   // Categories
   Route.post('/categories', 'CategoriesController.store')
   Route.get('/categories', 'CategoriesController.index')
-  Route.put('/categories/:id', 'CategoriesController.update')
-  Route.delete('/categories/:id', 'CategoriesController.destroy')
+  // Route.put('/categories/:id', 'CategoriesController.update')
+  // Route.delete('/categories/:id', 'CategoriesController.destroy')
 
   //books endpoints
   Route.post('/books', 'BooksController.store')
@@ -76,10 +76,12 @@ Route.group(() => {
   Route.delete('/seller/books/:id', 'BooksController.destroy')
   Route.delete('/seller/bookImages/:id', 'BooksController.deleteImage')
   //
+
 }).prefix('api').middleware('role:seller')
 
 Route.group(() => {
   // Customer-specific routes
+  Route.put('customer/:id', 'AuthController.update')
   Route.post('/customer/orders', 'OrdersController.store')
   Route.get('/customer/books', 'BooksController.index')
   Route.get('/customer/tutors', 'TutorsController.index')
@@ -88,3 +90,5 @@ Route.group(() => {
   Route.get('/seller-status', 'RequestRolesController.getSellerStatus')
   Route.get('/tutor-status', 'RequestRolesController.getTutorStatus')
 }).prefix('api').middleware('role:customer')
+
+Route.put('/tutors/updateProfile/:id', 'TutorsController.update').prefix('api').middleware('role:tutor')

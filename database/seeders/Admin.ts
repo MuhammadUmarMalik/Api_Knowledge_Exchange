@@ -9,7 +9,7 @@ export default class AdminSeeder extends BaseSeeder {
       name: 'User',
       gender: 'male',
       email: 'admin@example.com',
-      password: 'admin',
+      password: 'secret',
     })
     await adminUser.related('roles').attach([adminRole.id])
 
