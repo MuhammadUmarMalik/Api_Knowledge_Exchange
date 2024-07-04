@@ -1,20 +1,22 @@
 // database/seeders/CustomerSeeder.ts
 import BaseSeeder from '@ioc:Adonis/Lucid/Seeder'
-import Customer from 'App/Models/Customer'
 import User from 'App/Models/User'
+import Role from 'App/Models/Role'
+import Customer from 'App/Models/Customer'
 
 export default class CustomerSeeder extends BaseSeeder {
   public async run() {
-    const user = await User.create({
+    const customerRole = await Role.findByOrFail('name', 'customer')
+    const customerUser = await User.create({
       name: 'Customer User',
-      gender: 'female',
+      gender: 'male',
       email: 'customer@example.com',
-      password: 'password',
-      role: 'customer',
+      password: 'secret',
     })
+    await customerUser.related('roles').attach([customerRole.id])
 
     await Customer.create({
-      userId: user.id
+      userId: customerUser.id,
     })
   }
 }

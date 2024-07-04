@@ -11,6 +11,6 @@ export const AuthValidator = schema.create({
 
 export const LoginValidator = schema.create({
   email: schema.string([rules.required(), rules.email()]),
-  password: schema.string([rules.minLength(8), rules.required()]),
+  password: schema.string([rules.minLength(4), rules.required()]),
 })
 

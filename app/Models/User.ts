@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import Hash from '@ioc:Adonis/Core/Hash'
-import { column, beforeSave, BaseModel } from '@ioc:Adonis/Lucid/Orm'
+import { column, beforeSave, BaseModel, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
+import Role from './Role'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -18,11 +19,14 @@ export default class User extends BaseModel {
   @column({ serializeAs: null })
   public password: string
 
-  @column()
-  public rememberMeToken: string 
-
-  @column()
-  public role: 'customer' | 'seller' | 'tutor' | 'admin'
+  @manyToMany(() => Role, {
+    pivotTable: 'user_roles',
+    localKey: 'id',
+    pivotForeignKey: 'user_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'role_id',
+  })
+  public roles: ManyToMany<typeof Role>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

@@ -69,7 +69,7 @@ Route.group(() => {
   Route.post('/seller/categories', 'CategoriesController.store')
   Route.get('/seller/categories', 'CategoriesController.index')
   // Other seller routes...
-}).prefix('api').middleware('seller')
+}).prefix('api').middleware('role:seller')
 
 Route.group(() => {
   // Customer-specific routes
@@ -80,4 +80,4 @@ Route.group(() => {
   Route.post('/apply-tutor', 'RequestRolesController.applyAsTutor')
   Route.get('/seller-status', 'RequestRolesController.getSellerStatus')
   Route.get('/tutor-status', 'RequestRolesController.getTutorStatus')
-}).prefix('api').middleware('customer')
+}).prefix('api').middleware('role:customer')

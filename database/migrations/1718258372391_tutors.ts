@@ -16,7 +16,7 @@ export default class extends BaseSchema {
       table.integer('fee')
       table.string('location')
       table.string('status').defaultTo('pending')
-      table.text('profilePicture')
+      table.string('profile_picture')
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */
