@@ -49,7 +49,11 @@ export default class AuthController {
                 expiresIn: '5 days',
             })
             const roles = user.roles.map(role => role.name)
-            return response.send(Response('User Logged In Successfully', { user, token, roles }))
+            return response.send(Response('User Logged In Successfully', {
+                user,
+                token,
+                roles
+            }))
         } catch (error) {
             console.log(error)
             return response.status(500).json({ error: { message: 'Internal server error' } })

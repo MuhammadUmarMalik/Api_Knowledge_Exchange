@@ -11,12 +11,17 @@ import { PaginationUtil } from "App/Utils/PaginationUtil";
 export default class booksController {
     public async store({ request, response, auth }: HttpContextContract) {
         try {
-            const user = auth.user;
-            if (user?.role !== 'seller') {
-                return response.status(401).send({ message: "Forbidden: Only sellers can create books" });
+            const user = auth.user
+            await user?.load('roles')
+            const isSeller = user?.roles.some(role => role.name === 'customer')
+
+            if (!isSeller) {
+                return response.status(401).send({ message: "Forbidden: Only customers can create orders" })
             }
 
-            const seller = await Seller.findBy('user_id', user?.id);
+            const seller = await Seller.findBy('user_id', user?.id)
+
+
 
             if (!seller) {
                 return response.status(401).send({ message: "Forbidden: Only sellers can create books" });
@@ -208,6 +213,8 @@ export default class booksController {
                 .where('sellerId', sellerId)
                 .preload('images')
 
+            console.log('book', books)
+
             const data = books.map((book) => {
                 return {
                     id: book.id,
@@ -222,6 +229,7 @@ export default class booksController {
                     updated_at: book.updatedAt,
                 }
             })
+            console.log('boookData------<><><>><><.', data)
 
             return response.send(Response("Get Seller's Books Successfully", { seller, books: data }))
         } catch (error) {

@@ -6,74 +6,7 @@ import UserRole from 'App/Models/UserRole'
 import Role from 'App/Models/Role';
 import Application from '@ioc:Adonis/Core/Application'
 export default class RequestRolesController {
-    // public async applyAsSeller({ auth, request, response }: HttpContextContract) {
-    //     const user = auth.user as User
-    //     const { name, phoneNumber } = request.only(['name', 'phoneNumber'])
 
-    //     const seller = new Seller()
-    //     seller.userId = user.id
-    //     seller.name = name
-    //     seller.phoneNumber = phoneNumber
-    //     seller.status = 'pending'
-    //     await seller.save()
-
-    //     return response.ok({ message: 'Seller application submitted' })
-    // }
-
-    // public async applyAsTutor({ auth, request, response }: HttpContextContract) {
-    //     const user = auth.user as User
-    //     const { subject, qualifications, fee, location, profilePicture } = request.only([
-    //         'subject', 'qualifications', 'fee', 'location', 'profilePicture'
-    //     ])
-
-    //     const tutor = new Tutor()
-    //     tutor.userId = user.id
-    //     tutor.subject = subject
-    //     tutor.qualifications = qualifications
-    //     tutor.fee = fee
-    //     tutor.location = location
-    //     tutor.profilePicture = profilePicture
-    //     tutor.status = 'pending'
-    //     await tutor.save()
-
-    //     return response.ok({ message: 'Tutor application submitted' })
-    // }
-    
-
-    // public async approve({ auth, params, response }: HttpContextContract) {
-    //     const admin = auth.user as User
-
-    //     if (admin.role !== 'admin') {
-    //         return response.unauthorized('Role based authorization failed')
-    //     }
-
-    //     const { role, userId } = params
-    //     const user = await User.findOrFail(userId)
-
-    //     if (role === 'seller') {
-    //         const seller = await Seller.query().where('user_id', user.id).first()
-    //         if (!seller) {
-    //             return response.badRequest('Seller not found')
-    //         }
-    //         seller.status = 'active'
-    //         await seller.save()
-    //         user.role = 'seller'
-    //         await user.save()
-    //     } else if (role === 'tutor') {
-    //         const tutor = await Tutor.query().where('user_id', user.id).first()
-    //         if (!tutor) {
-    //             return response.badRequest('Tutor not found')
-    //         }
-    //         tutor.status = 'active'
-    //         await tutor.save()
-    //         user.role = 'tutor'
-    //         await user.save()
-    //     } else {
-    //         return response.badRequest('Invalid role')
-    //     }
-
-    //     return response.ok({ message: 'Role approved' })
-    // }
     public async applyAsSeller({ auth, request, response }: HttpContextContract) {
         const user = auth.user as User
         const { name, phoneNumber } = request.only(['name', 'phoneNumber'])
@@ -142,44 +75,52 @@ export default class RequestRolesController {
         return response.ok({ message: 'Tutor application submitted' })
     }
 
-    public async approve({ auth, request, response }: HttpContextContract) {
+    public async approve({ auth, params, response }: HttpContextContract) {
         const admin = auth.user as User
-
         await admin.load('roles')
         const isAdmin = admin.roles.some(role => role.name === 'admin')
         if (!isAdmin) {
-            return response.unauthorized('Role-based authorization failed')
+            return response.unauthorized('Role based authorization failed')
         }
-        // Extract roleId and userId from request body
-        const { roleId, userId } = request.only(['roleId', 'userId'])
+
+        const { role, userId } = params
 
         try {
             const user = await User.findOrFail(userId)
+            await user.load('roles')
+            const userHasRole = user.roles.some(r => r.name === role)
 
-            // Update user_role entry
-            const userRole = await UserRole.query()
-                .where('user_id', user.id)
-                .firstOrFail()
-
-            userRole.roleId = roleId
-            await userRole.save()
-
-            // Update role-specific details
-            if (roleId === 'seller') {
-                let seller = await Seller.findByOrFail('user_id', user.id)
+            if (userHasRole) {
+                return response.badRequest('User already has the specified role')
+            }
+            if (role === 'seller') {
+                const seller = await Seller.query().where('user_id', user.id).firstOrFail()
                 seller.status = 'active'
                 await seller.save()
-            } else if (roleId === 'tutor') {
-                let tutor = await Tutor.findByOrFail('user_id', user.id)
+
+                const defaultRole = await Role.findBy('name', 'seller')
+                if (defaultRole) {
+                    await user.related('roles').attach([defaultRole.id])
+                }
+            } else if (role === 'tutor') {
+                const tutor = await Tutor.query().where('user_id', user.id).firstOrFail()
                 tutor.status = 'active'
                 await tutor.save()
+
+                const defaultRole = await Role.findBy('name', 'tutor')
+                if (defaultRole) {
+                    await user.related('roles').attach([defaultRole.id])
+                }
             } else {
                 return response.badRequest('Invalid role')
             }
 
             return response.ok({ message: 'Role approved' })
         } catch (error) {
-            console.error('Error approving role:', error)
+            console.error('Error approving role:', error.message)
+            if (error.code === 'E_ROW_NOT_FOUND') {
+                return response.notFound('Resource not found')
+            }
             return response.status(500).send({ error: 'Failed to approve role' })
         }
     }

@@ -12,48 +12,43 @@ export default class OrdersController {
         const { name, email, phone, address, books, offer } = request.only(['name', 'email', 'phone', 'address', 'books', 'offer'])
 
         if (!Array.isArray(books) || books.length === 0) {
-
-            return response.status(400).json({ message: 'books are required and must be an array' })
-
-        }
-        const user = auth.user;
-        if (user?.role !== 'customer') {
-            return response.status(401).send({ message: "Forbidden: Only sellers can create books" });
+            return response.status(400).json({ message: 'Books are required and must be an array' })
         }
 
-        const customer = await Customer.findBy('user_id', user?.id);
+        const user = auth.user
+        await user?.load('roles')
+        const isCustomer = user?.roles.some(role => role.name === 'customer')
 
+        if (!isCustomer) {
+            return response.status(401).send({ message: "Forbidden: Only customers can create orders" })
+        }
+
+        const customer = await Customer.findBy('user_id', user?.id)
         if (!customer) {
-            return response.status(401).send({ message: "Forbidden: Only sellers can create books" });
+            return response.status(401).send({ message: "Forbidden: Only customers can create orders" })
         }
 
         try {
-            // Fetch products from the database
             const bookIds = books.map(b => b.bookId)
             const bookList = await Book.query().whereIn('id', bookIds)
 
-            // Check if all requested products are available in sufficient quantity
             let totalPrice = 0
             for (let book of books) {
-                const foundProduct = bookList.find(b => b.id === book.bookId)
-                if (!foundProduct || foundProduct.quantity < book.buyingQuantity) {
-                    return response.status(400).json({ message: `Product ${book.name} is not available in the requested quantity` })
+                const foundBook = bookList.find(b => b.id === book.bookId)
+                if (!foundBook || foundBook.quantity < book.buyingQuantity) {
+                    return response.status(400).json({ message: `Book ${book.name} is not available in the requested quantity` })
                 }
-                // Calculate total price
-                totalPrice += foundProduct.price * book.buyingQuantity
+                totalPrice += foundBook.price * book.buyingQuantity
             }
 
-            // Update product quantities
             for (let book of books) {
-                const foundProduct = bookList.find(b => b.id === book.bookId)
-                if (foundProduct) {
-                    foundProduct.quantity -= book.buyingQuantity
-                    await foundProduct.save()
+                const foundBook = bookList.find(b => b.id === book.bookId)
+                if (foundBook) {
+                    foundBook.quantity -= book.buyingQuantity
+                    await foundBook.save()
                 }
             }
 
-
-            // Create the order
             const orderNumber = uuidv4()
             const newOrder = await Order.create({
                 customerId: customer.id,
@@ -66,26 +61,26 @@ export default class OrdersController {
                 status: 'pending',
                 offer,
             })
+
             await PaymentDetail.create({
                 orderId: newOrder.id,
                 amount: totalPrice,
                 type: 'card',
-                status: 'pending' // Default status
+                status: 'pending'
             })
-            // Create order items
+
             for (const book of books) {
-                const foundProduct = bookList.find(p => p.id === book.bookId)
-                if (foundProduct) {
+                const foundBook = bookList.find(b => b.id === book.bookId)
+                if (foundBook) {
                     await OrderItem.create({
                         orderId: newOrder.id,
                         bookId: book.bookId,
-                        book_name: foundProduct.name, // Include the product name
+                        book_name: foundBook.name,
                         quantity: book.buyingQuantity,
                     })
                 }
             }
 
-            // Send confirmation email
             await Mail.send((message) => {
                 message
                     .to(email)
@@ -100,7 +95,8 @@ export default class OrdersController {
             <h3>Regards: Knowledge Exchange</h3>
           `)
             })
-            return response.send(newOrder);
+
+            return response.send(newOrder)
         } catch (error) {
             return response.status(500).json({ message: 'An error occurred while processing your order', error: error.message })
         }

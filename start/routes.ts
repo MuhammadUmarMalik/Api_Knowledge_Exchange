@@ -64,11 +64,18 @@ Route.group(() => {
 }).prefix('api').middleware('auth')
 
 Route.group(() => {
-  // Seller-specific routes
+
   Route.post('/logout', 'AuthController.logout')
   Route.post('/seller/categories', 'CategoriesController.store')
   Route.get('/seller/categories', 'CategoriesController.index')
-  // Other seller routes...
+  //seller book
+  Route.post('/seller/books', 'BooksController.store')
+  Route.get('/seller/books', 'BooksController.index')
+  Route.get('/seller/seller-book-list/:sellerId', 'BooksController.getSellerBooks')
+  Route.put('/seller/books/:id', 'BooksController.update')
+  Route.delete('/seller/books/:id', 'BooksController.destroy')
+  Route.delete('/seller/bookImages/:id', 'BooksController.deleteImage')
+  //
 }).prefix('api').middleware('role:seller')
 
 Route.group(() => {
