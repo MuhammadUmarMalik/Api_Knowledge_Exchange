@@ -84,4 +84,19 @@ export default class AuthController {
             return response.status(500).json({ error: { message: 'Internal server error' } })
         }
     }
+
+    public async getCustomer({ auth, response }: HttpContextContract) {
+        try {
+            const user = auth.user!
+            const customer = await Customer.findBy('userId', user.id)
+
+            if (!customer) {
+                return response.status(404).json({ message: 'Customer not found' })
+            }
+            return response.send(Response('Customer Details Retrieved Successfully', { customer }))
+        } catch (error) {
+            console.error(error)
+            return response.status(500).json({ error: { message: 'Internal server error' } })
+        }
+    }
 }

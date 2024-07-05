@@ -9,7 +9,10 @@ export default class CreateTutor {
     qualifications: schema.string(),
     fee: schema.number(),
     location: schema.string(),
-    profilePicture: schema.string(),
+    profilePicture: schema.file({
+      size: '2mb',
+      extnames: ['jpg', 'png', 'jpeg']
+    })
   })
 
   public messages = {

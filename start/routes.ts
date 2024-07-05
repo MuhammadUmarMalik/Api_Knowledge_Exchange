@@ -81,7 +81,8 @@ Route.group(() => {
 
 Route.group(() => {
   // Customer-specific routes
-  Route.put('customer/:id', 'AuthController.update')
+  Route.get('/customer', 'AuthController.getCustomer')
+  Route.put('/customer/:id', 'AuthController.update')
   Route.post('/customer/orders', 'OrdersController.store')
   Route.get('/customer/books', 'BooksController.index')
   Route.get('/customer/tutors', 'TutorsController.index')
