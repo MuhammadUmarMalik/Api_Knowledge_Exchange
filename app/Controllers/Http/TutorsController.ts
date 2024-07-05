@@ -1,14 +1,16 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Tutor from 'App/Models/Tutor'
 import { PaginationUtil } from 'App/Utils/PaginationUtil'
+import { Response } from 'App/Utils/ApiUtil'
 export default class TutorsController {
     public async index({ response }: HttpContextContract) {
         const tutors = await Tutor.all()
         return response.json(tutors)
     }
-    public async show({ params, response }: HttpContextContract) {
-        const tutor = await Tutor.findOrFail(params.id)
-        return response.json(tutor)
+    public async show({ auth, response }: HttpContextContract) {
+        const user = auth.user!
+        const tutor = await Tutor.findByOrFail('userId', user.id)
+        return response.send(Response('User Registered Successfully', { user, tutor }))
     }
 
     public async update({ params, request, response }: HttpContextContract) {

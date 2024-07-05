@@ -10,9 +10,9 @@ export default class SellersController {
         return response.json(tutors)
     }
 
-    public async show({ auth, params, response }: HttpContextContract) {
+    public async show({ auth, response }: HttpContextContract) {
         const user = auth.user!
-        const seller = await Seller.findOrFail(params.id)
+        const seller = await Seller.findByOrFail('userId', user.id)
         return response.send(Response('User Registered Successfully', { user, seller }))
     }
 

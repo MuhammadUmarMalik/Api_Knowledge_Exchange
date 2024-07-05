@@ -93,4 +93,8 @@ Route.group(() => {
   Route.get('/tutor-status', 'RequestRolesController.getTutorStatus')
 }).prefix('api').middleware('role:customer')
 
-Route.put('/tutors/updateProfile/:id', 'TutorsController.update').prefix('api').middleware('role:tutor')
+
+Route.group(() => {
+  Route.put('/tutors/updateProfile/:id', 'TutorsController.update')
+  Route.get('/tutors', 'TutorsController.show')
+}).prefix('api').middleware('role:tutor')
