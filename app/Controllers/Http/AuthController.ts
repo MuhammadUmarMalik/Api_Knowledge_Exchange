@@ -93,7 +93,7 @@ export default class AuthController {
             if (!customer) {
                 return response.status(404).json({ message: 'Customer not found' })
             }
-            return response.send(Response('Customer Details Retrieved Successfully', { customer }))
+            return response.send(Response('Customer Details Retrieved Successfully', { user }))
         } catch (error) {
             console.error(error)
             return response.status(500).json({ error: { message: 'Internal server error' } })
