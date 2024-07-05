@@ -1,7 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Seller from 'App/Models/Seller'
 // import User from 'App/Models/User'
-
+import { Response } from 'App/Utils/ApiUtil'
 export default class SellersController {
     public async index({ response }: HttpContextContract) {
 
@@ -10,9 +10,10 @@ export default class SellersController {
         return response.json(tutors)
     }
 
-    public async show({ params, response }: HttpContextContract) {
-        const tutor = await Seller.findOrFail(params.id)
-        return response.json(tutor)
+    public async show({ auth, params, response }: HttpContextContract) {
+        const user = auth.user!
+        const seller = await Seller.findOrFail(params.id)
+        return response.send(Response('User Registered Successfully', { user, seller }))
     }
 
     public async update({ params, request, response }: HttpContextContract) {

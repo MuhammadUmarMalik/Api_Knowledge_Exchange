@@ -64,7 +64,8 @@ Route.group(() => {
 }).prefix('api').middleware('auth')
 
 Route.group(() => {
-
+  //seller
+  Route.get('/seller', 'SellersController.show')
   Route.post('/logout', 'AuthController.logout')
   Route.post('/seller/categories', 'CategoriesController.store')
   Route.get('/seller/categories', 'CategoriesController.index')
