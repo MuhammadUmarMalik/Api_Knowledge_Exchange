@@ -90,9 +90,9 @@ export default class RequestRolesController {
             await user.load('roles')
             const userHasRole = user.roles.some(r => r.name === role)
 
-            if (userHasRole) {
-                return response.badRequest('User already has the specified role')
-            }
+            // if (userHasRole) {
+            //     return response.badRequest('User already has the specified role')
+            // }
             if (role === 'seller') {
                 const seller = await Seller.query().where('user_id', user.id).firstOrFail()
                 seller.status = 'active'
@@ -129,8 +129,9 @@ export default class RequestRolesController {
             const pendingSellers = await Seller.query().where('status', 'pending').preload('user')
             const pendingTutors = await Tutor.query().where('status', 'pending').preload('user')
 
-            return response.ok({ pendingSellers, pendingTutors })
+            return response.send({ pendingSellers, pendingTutors })
         } catch (error) {
+            console.log(error)
             return response.status(500).send({ error: 'Internal server error' })
         }
     }
