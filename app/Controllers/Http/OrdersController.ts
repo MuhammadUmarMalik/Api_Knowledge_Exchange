@@ -8,11 +8,106 @@ import PaymentDetail from 'App/Models/PaymentDetail'
 import { v4 as uuidv4 } from 'uuid'
 import { Response } from 'App/Utils/ApiUtil'
 export default class OrdersController {
-    public async store({ auth, request, response }: HttpContextContract) {
-        const { name, email, phone, address, books, offer } = request.only(['name', 'email', 'phone', 'address', 'books', 'offer'])
+    // public async store({ auth, request, response }: HttpContextContract) {
+    //     const { name, email, phone, address, books, offer } = request.only(['name', 'email', 'phone', 'address', 'books', 'offer'])
 
-        if (!Array.isArray(books) || books.length === 0) {
-            return response.status(400).json({ message: 'Books are required and must be an array' })
+    //     if (!Array.isArray(books) || books.length === 0) {
+    //         return response.status(400).json({ message: 'Books are required and must be an array' })
+    //     }
+
+    //     const user = auth.user
+    //     await user?.load('roles')
+    //     const isCustomer = user?.roles.some(role => role.name === 'customer')
+
+    //     if (!isCustomer) {
+    //         return response.status(401).send({ message: "Forbidden: Only customers can create orders" })
+    //     }
+
+    //     const customer = await Customer.findBy('user_id', user?.id)
+    //     if (!customer) {
+    //         return response.status(401).send({ message: "Forbidden: Only customers can create orders" })
+    //     }
+
+    //     try {
+    //         const bookIds = books.map(b => b.bookId)
+    //         const bookList = await Book.query().whereIn('id', bookIds)
+
+    //         let totalPrice = 0
+    //         for (let book of books) {
+    //             const foundBook = bookList.find(b => b.id === book.bookId)
+    //             if (!foundBook || foundBook.quantity < book.buyingQuantity) {
+    //                 return response.status(400).json({ message: `Book ${book.name} is not available in the requested quantity` })
+    //             }
+    //             totalPrice += foundBook.price * book.buyingQuantity
+    //         }
+
+    //         for (let book of books) {
+    //             const foundBook = bookList.find(b => b.id === book.bookId)
+    //             if (foundBook) {
+    //                 foundBook.quantity -= book.buyingQuantity
+    //                 await foundBook.save()
+    //             }
+    //         }
+
+    //         const orderNumber = uuidv4()
+    //         const newOrder = await Order.create({
+    //             customerId: customer.id,
+    //             name,
+    //             email,
+    //             phone,
+    //             address,
+    //             order_number: orderNumber,
+    //             total: totalPrice,
+    //             status: 'pending',
+    //             offer,
+    //         })
+
+    //         await PaymentDetail.create({
+    //             orderId: newOrder.id,
+    //             amount: totalPrice,
+    //             type: 'card',
+    //             status: 'pending'
+    //         })
+
+    //         for (const book of books) {
+    //             const foundBook = bookList.find(b => b.id === book.bookId)
+    //             if (foundBook) {
+    //                 await OrderItem.create({
+    //                     orderId: newOrder.id,
+    //                     bookId: book.bookId,
+    //                     book_name: foundBook.name,
+    //                     quantity: book.buyingQuantity,
+    //                 })
+    //             }
+    //         }
+
+    //         await Mail.send((message) => {
+    //             message
+    //                 .to(email)
+    //                 .from('no-reply@yourstore.com')
+    //                 .subject('Order Confirmation')
+    //                 .html(`
+    //         <h1>Order Confirmation</h1>
+    //         <p>Dear ${name},</p>
+    //         <p>Thank you for your order. Your order number is <br> ${orderNumber}.</p>
+    //         <p>We will notify you once your order is  ${newOrder.status}.</p>
+    //         <p>Thank you for shopping with us!</p>
+    //         <h3>Regards: Knowledge Exchange</h3>
+    //       `)
+    //         })
+
+    //         return response.send(newOrder)
+    //     } catch (error) {
+    //         console.log(error)
+    //         return response.status(500).json({ message: 'An error occurred while processing your order', error: error.message })
+    //     }
+    // }
+    public async store({ auth, request, response }: HttpContextContract) {
+        const { name, email, phone, address, bookId, buyingQuantity, offer } = request.only(['name', 'email', 'phone', 'address', 'bookId', 'buyingQuantity', 'offer'])
+
+        // Check if bookId and buyingQuantity are provided
+        if (!bookId || !buyingQuantity) {
+            return response.status(400).json({ message: 'Both bookId and buyingQuantity are required' })
         }
 
         const user = auth.user
@@ -29,25 +124,18 @@ export default class OrdersController {
         }
 
         try {
-            const bookIds = books.map(b => b.bookId)
-            const bookList = await Book.query().whereIn('id', bookIds)
+            const book = await Book.findOrFail(bookId)
 
-            let totalPrice = 0
-            for (let book of books) {
-                const foundBook = bookList.find(b => b.id === book.bookId)
-                if (!foundBook || foundBook.quantity < book.buyingQuantity) {
-                    return response.status(400).json({ message: `Book ${book.name} is not available in the requested quantity` })
-                }
-                totalPrice += foundBook.price * book.buyingQuantity
+            // Check if requested quantity is available
+            if (book.quantity < buyingQuantity) {
+                return response.status(400).json({ message: `Book ${book.name} is not available in the requested quantity` })
             }
 
-            for (let book of books) {
-                const foundBook = bookList.find(b => b.id === book.bookId)
-                if (foundBook) {
-                    foundBook.quantity -= book.buyingQuantity
-                    await foundBook.save()
-                }
-            }
+            const totalPrice = book.price * buyingQuantity
+
+            // Deduct quantity from available stock
+            book.quantity -= buyingQuantity
+            await book.save()
 
             const orderNumber = uuidv4()
             const newOrder = await Order.create({
@@ -69,17 +157,12 @@ export default class OrdersController {
                 status: 'pending'
             })
 
-            for (const book of books) {
-                const foundBook = bookList.find(b => b.id === book.bookId)
-                if (foundBook) {
-                    await OrderItem.create({
-                        orderId: newOrder.id,
-                        bookId: book.bookId,
-                        book_name: foundBook.name,
-                        quantity: book.buyingQuantity,
-                    })
-                }
-            }
+            await OrderItem.create({
+                orderId: newOrder.id,
+                bookId: book.id,
+                book_name: book.name,
+                quantity: buyingQuantity,
+            })
 
             await Mail.send((message) => {
                 message
@@ -90,7 +173,7 @@ export default class OrdersController {
             <h1>Order Confirmation</h1>
             <p>Dear ${name},</p>
             <p>Thank you for your order. Your order number is <br> ${orderNumber}.</p>
-            <p>We will notify you once your order is  ${newOrder.status}.</p>
+            <p>We will notify you once your order is ${newOrder.status}.</p>
             <p>Thank you for shopping with us!</p>
             <h3>Regards: Knowledge Exchange</h3>
           `)
@@ -101,6 +184,7 @@ export default class OrdersController {
             return response.status(500).json({ message: 'An error occurred while processing your order', error: error.message })
         }
     }
+
 
 
     public async updateOrderStatus({ request, params, response }: HttpContextContract) {
