@@ -62,12 +62,14 @@ export default class booksController {
 
     public async index({ response }: HttpContextContract) {
         try {
-            const books = await Book.query().preload('images');
+
+            const books = await Book.query().preload('images').preload('category');
             const data = books.map((book) => {
                 return {
                     id: book.id,
                     name: book.name,
                     category: book.categoryId,
+                    categoryName: book.category ? book.category.name : null,
                     author: book.author,
                     condition: book.condition,
                     price: book.price,
@@ -88,13 +90,14 @@ export default class booksController {
         try {
             const book = await Book.query()
                 .where('id', params.id)
-                .preload('images')
+                .preload('images').preload('category')
                 .firstOrFail();
 
             const data = {
                 id: book.id,
                 name: book.name,
                 category: book.categoryId,
+                categoryName: book.category ? book.category.name : null,
                 author: book.author,
                 condition: book.condition,
                 price: book.price,
@@ -103,6 +106,7 @@ export default class booksController {
                 created_at: book.createdAt,
                 updated_at: book.updatedAt,
             };
+            console.log('data===========>', data)
 
             return response.send(
                 Response("Get Specified book Successfully", data)
