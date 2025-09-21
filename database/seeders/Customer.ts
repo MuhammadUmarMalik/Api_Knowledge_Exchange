@@ -6,17 +6,24 @@ import Customer from 'App/Models/Customer'
 
 export default class CustomerSeeder extends BaseSeeder {
   public async run() {
-    const customerRole = await Role.findByOrFail('name', 'customer')
-    const customerUser = await User.create({
-      name: 'Customer User',
-      gender: 'male',
-      email: 'customer@example.com',
-      password: 'secret',
-    })
-    await customerUser.related('roles').attach([customerRole.id])
+    // Ensure customer role exists
+    const [customerRole] = await Role.updateOrCreateMany('name', [
+      { name: 'customer' },
+    ])
 
-    await Customer.create({
-      userId: customerUser.id,
-    })
+    // Upsert customer user by email
+    const customerUser = await User.firstOrCreate(
+      { email: 'customer@example.com' },
+      { name: 'Customer User', gender: 'male', password: 'secret' }
+    )
+
+    // Attach role if not already
+    await customerUser.load('roles')
+    const alreadyHasRole = customerUser.roles.some((r) => r.id === customerRole.id)
+    if (!alreadyHasRole) {
+      await customerUser.related('roles').attach([customerRole.id])
+    }
+
+    await Customer.firstOrCreate({ userId: customerUser.id }, { userId: customerUser.id })
   }
 }
