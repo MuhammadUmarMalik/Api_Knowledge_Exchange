@@ -38,7 +38,7 @@ export default class booksController {
             book.quantity = data.quantity;
             await book.save();
             const images = request.files('path')
-            let bookImages = []
+            const bookImages: BookImage[] = []
             for (let image of images) {
                 await image.move(Application.tmpPath("uploads"), {
                     name: `${Date.now()}-${image.clientName}`,

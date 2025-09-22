@@ -88,7 +88,6 @@ export default class RequestRolesController {
         try {
             const user = await User.findOrFail(userId)
             await user.load('roles')
-            const userHasRole = user.roles.some(r => r.name === role)
 
             // if (userHasRole) {
             //     return response.badRequest('User already has the specified role')
